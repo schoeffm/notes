@@ -93,6 +93,18 @@ public class Notes implements Callable<Integer> {
 
         return 0;
     }
+    @Command(name = "ls",
+            description = "Lists the current content of the notes-directory")
+    Integer ls() throws IOException, InterruptedException {
+        notes.ensureNotesDirExists();
+
+        Files.list(config.getDocumentPath())
+                .filter(p -> p.toString().endsWith("md"))
+                .map(Path::getFileName)
+                .forEach(System.out::println);
+
+        return 0;
+    }
 
     @Command(name = "pandoc",
             aliases = {"p"},
@@ -115,8 +127,6 @@ public class Notes implements Callable<Integer> {
 
         return 0;
     }
-
-    // pandoc --standalone 2022-09-11.md --metadata title="rendered" > output.html
 
     @Override
     public Integer call() { return 0; }
