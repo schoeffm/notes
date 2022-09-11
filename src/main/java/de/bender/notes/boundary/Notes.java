@@ -1,18 +1,29 @@
 package de.bender.notes.boundary;
 
+import com.github.rjeschke.txtmark.Processor;
 import de.bender.notes.control.Config;
 import de.bender.notes.control.NoteService;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
+import io.quarkus.qute.Template;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 
 import javax.inject.Inject;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.nio.file.StandardOpenOption.APPEND;
 
 @TopCommand
 @Command(name = "notes", mixinStandardHelpOptions = true,
@@ -27,6 +38,9 @@ public class Notes implements Callable<Integer> {
     @Inject
     NoteService notes;
 
+    @Inject
+    Template render;
+
     @Command(name = "edit",
             aliases = {"e"},
             description = "Opens the current log-file for editing")
@@ -39,6 +53,70 @@ public class Notes implements Callable<Integer> {
 
         return 0;
     }
+
+    @Command(name = "view",
+            aliases = {"v"},
+            description = "Views the current log-file (using mdcat)")
+    Integer view() throws InterruptedException, IOException {
+        notes.ensureNotesDirExists();
+        Path noteFile = notes.ensureNotesFileExists();
+
+        Process process = new ProcessBuilder("mdcat", noteFile.toString())
+                .inheritIO()
+                .start();
+        process.waitFor();
+
+        return 0;
+    }
+
+    @Command(name = "render",
+            aliases = {"r"},
+            description = "Renders HTML")
+    Integer render() throws IOException {
+        notes.ensureNotesDirExists();
+        notes.reinitOutputDir();
+
+        List<Path> markdownFiles = Files.list(config.getDocumentPath())
+                .filter(p -> p.toString().endsWith("md"))
+                .toList();
+        for (Path filePath : markdownFiles) {
+            String output = Processor
+                    .process(String.join("\n", Files.readAllLines(filePath)));
+
+            String htmlOutput = render
+                    .data("markdown_output", output)
+                    .render();
+
+            Path file = Files.createFile(Paths.get(config.getDocumentOutputPath().toString(), filePath.getFileName() + ".html"));
+            Files.writeString(file, htmlOutput, APPEND);
+        }
+
+        return 0;
+    }
+
+    @Command(name = "pandoc",
+            aliases = {"p"},
+            description = "Renders using pandoc ")
+    Integer pandoc() throws IOException, InterruptedException {
+        notes.ensureNotesDirExists();
+        notes.reinitOutputDir();
+
+        List<Path> markdownFiles = Files.list(config.getDocumentPath())
+                .filter(p -> p.toString().endsWith("md"))
+                .toList();
+
+        for (Path filePath : markdownFiles) {
+            Process process = new ProcessBuilder("pandoc", "--standalone", filePath.toString(), "--metadata", "title=\"rendered\"").start();
+            process.waitFor();
+            String renderedOutput = String.join("\n", readProcessOutput(process));
+            Path file = Files.createFile(Paths.get(config.getDocumentOutputPath().toString(), filePath.getFileName() + ".html"));
+            Files.writeString(file, renderedOutput, APPEND);
+        }
+
+        return 0;
+    }
+
+    // pandoc --standalone 2022-09-11.md --metadata title="rendered" > output.html
 
     @Override
     public Integer call() { return 0; }

@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -37,5 +38,20 @@ public class NoteService {
             Files.createDirectories(config.getDocumentPath(),
                     asFileAttribute(Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE)));
         }
+    }
+    public void ensureNoteOutputDirExists() throws IOException {
+        if (Files.notExists(config.getDocumentOutputPath())) {
+            Files.createDirectories(config.getDocumentOutputPath(),
+                    asFileAttribute(Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE)));
+        }
+    }
+
+    public void reinitOutputDir() throws IOException {
+        List<Path> paths = Files.list(config.getDocumentOutputPath()).toList();
+        for (Path file : paths) {
+            Files.deleteIfExists(file);
+        }
+        Files.deleteIfExists(config.getDocumentOutputPath());
+        this.ensureNoteOutputDirExists();
     }
 }

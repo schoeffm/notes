@@ -26,11 +26,14 @@ public class Config {
     private static final String CONF_VALUE_EDITOR = "$EDITOR";
     private static final String CONF_KEY_NOTES_DOC_DIR = "NOTES_DOC_DIR";
     private static final String CONF_VALUE_NOTES_DOC_DIR = "Documents/notes";
+    private static final String CONF_KEY_NOTES_OUTPUT_DIR = "NOTES_OUTPUT_DIR";
+    private static final String CONF_VALUE_NOTES_OUTPUT_DIR = "Documents/notes/output";
 
     private static final String DATE_PATTERN_FORMAT = "yyyy-MM-dd";
 
     private static final Map<String, String> DEFAULT_CONFIG = Map.of(
             CONF_KEY_NOTES_DOC_DIR, Paths.get(System.getProperty("user.home"), CONF_VALUE_NOTES_DOC_DIR).toString(),
+            CONF_KEY_NOTES_OUTPUT_DIR, Paths.get(System.getProperty("user.home"), CONF_VALUE_NOTES_OUTPUT_DIR).toString(),
             CONF_KEY_EDITOR, CONF_VALUE_EDITOR
     );
 
@@ -39,6 +42,10 @@ public class Config {
 
     public Path getDocumentPath() {
         return Paths.get(readConfigValue(CONF_KEY_NOTES_DOC_DIR));
+    }
+
+    public Path getDocumentOutputPath() {
+        return Paths.get(readConfigValue(CONF_KEY_NOTES_OUTPUT_DIR));
     }
 
     public String getEditor() {
