@@ -32,6 +32,9 @@ notes search think that belong
 
 # renders all markdown files to HTML
 notes render
+
+# lists the content of the notes-dir
+notes ls
 ```
 
 ### Dependencies

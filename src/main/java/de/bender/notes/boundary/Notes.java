@@ -5,6 +5,7 @@ import de.bender.notes.control.Config;
 import de.bender.notes.control.NoteService;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.qute.Template;
+import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 
@@ -19,6 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -41,12 +43,19 @@ public class Notes implements Callable<Integer> {
     @Inject
     Template render;
 
+    @CommandLine.Option(names = {"-f", "--file"},
+            required = false,
+            description = "Optional filename the given note should be added")
+    String fileName;
+
     @Command(name = "edit",
             aliases = {"e"},
             description = "Opens the current log-file for editing")
     Integer edit() throws InterruptedException, IOException {
         notes.ensureNotesDirExists();
-        Path noteFile = notes.ensureNotesFileExists();
+        Path noteFile = Optional.ofNullable(fileName)
+                .map(Paths::get)
+                .orElse(notes.ensureNotesFileExists());
 
         Process process = new ProcessBuilder(config.getEditor(), noteFile.toString()).inheritIO().start();
         process.waitFor();
