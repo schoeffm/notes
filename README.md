@@ -6,9 +6,38 @@ Though, the basic idea stays the same - this tool acts as a quick way to create,
 
 The CLI tool comes with a comprehensive help - compile it to a binary image for your OS and follow its help.
 
+### Use Cases
+
+My personal workday can be quite hectic with a bunch of unplanned interactions and meetings - sometimes I have to juggle with a bunch of information simultaneously. A life-saver so far was a clipboard history - and still, that information is ephemeral. Hence, I'd like to keep track of my actions and thus this note-taking approach _could_ be a solution ... let's see where that journey takes me.
+
+```shell script
+# this adds a new entry (augmented with timestamp)
+notes add 'This is a headline
+
+- first bullet point
+- second bullet point
+'
+
+# just renders the current/today's note-file (using mdcat)
+notes view
+
+# this will create a new file `dedicated.md` within the notes-dir
+notes add 'I do not think that belongs to my daily log' -f dedicated
+
+# opens the current notes file in your default editor
+notes edit
+
+# uses grep -i to find all notes that contain the given search-string
+notes search think that belong
+
+# renders all markdown files to HTML
+notes render
+```
+
 ### Dependencies
 The tool integrates with a bunch of other CLI-tools - so it was created in the assumption that you also have
 - `grep`: in order to search through the notes
+- `mdcat`: to render the respective markdown file in our terminal
 
 
 [noted]:https://github.com/schoeffm/noted
