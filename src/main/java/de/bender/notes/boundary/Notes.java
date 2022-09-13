@@ -11,26 +11,21 @@ import picocli.CommandLine.HelpCommand;
 
 import javax.inject.Inject;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.nio.file.StandardOpenOption.APPEND;
 
 @TopCommand
 @Command(name = "notes", mixinStandardHelpOptions = true,
         version = "1.0.0",
-        subcommands = { Completion.class, HelpCommand.class, ConfigurationCmd.class, AdditionCmd.class, SearchCmd.class },
+        subcommands = { Completion.class, HelpCommand.class, ConfigurationCmd.class, AdditionCmd.class, ListCmd.class, SearchCmd.class },
         description = "Simple notes-taking app")
 public class Notes implements Callable<Integer> {
 
@@ -99,18 +94,6 @@ public class Notes implements Callable<Integer> {
             Path file = Files.createFile(Paths.get(config.getDocumentOutputPath().toString(), filePath.getFileName() + ".html"));
             Files.writeString(file, htmlOutput, APPEND);
         }
-
-        return 0;
-    }
-    @Command(name = "ls",
-            description = "Lists the current content of the notes-directory")
-    Integer ls() throws IOException, InterruptedException {
-        notes.ensureNotesDirExists();
-
-        Files.list(config.getDocumentPath())
-                .filter(p -> p.toString().endsWith("md"))
-                .map(Path::getFileName)
-                .forEach(System.out::println);
 
         return 0;
     }

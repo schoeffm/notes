@@ -3,6 +3,7 @@ package de.bender.notes.boundary;
 import de.bender.notes.control.Config;
 import io.smallrye.mutiny.tuples.Tuple2;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
 import javax.inject.Inject;
@@ -15,7 +16,7 @@ import java.util.stream.IntStream;
 
 import static java.lang.System.out;
 
-@CommandLine.Command(
+@Command(
         name = "search",
         aliases = {"s"},
         description = "Searches the given needle in your haystack of notes. You can define several search-terms that will be OR-combined - i.e. notes search java codeing")
