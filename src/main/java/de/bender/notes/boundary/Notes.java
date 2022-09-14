@@ -5,7 +5,6 @@ import de.bender.notes.control.Config;
 import de.bender.notes.control.NoteService;
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import io.quarkus.qute.Template;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.HelpCommand;
 
@@ -17,7 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import static java.nio.file.StandardOpenOption.APPEND;
@@ -25,7 +23,15 @@ import static java.nio.file.StandardOpenOption.APPEND;
 @TopCommand
 @Command(name = "notes", mixinStandardHelpOptions = true,
         version = "1.0.0",
-        subcommands = { Completion.class, HelpCommand.class, ConfigurationCmd.class, AdditionCmd.class, ListCmd.class, SearchCmd.class },
+        subcommands = {
+                Completion.class,
+                HelpCommand.class,
+                ViewCmd.class,
+                EditCmd.class,
+                ConfigurationCmd.class,
+                AdditionCmd.class,
+                ListCmd.class,
+                SearchCmd.class},
         description = "Simple notes-taking app")
 public class Notes implements Callable<Integer> {
 
@@ -37,41 +43,6 @@ public class Notes implements Callable<Integer> {
 
     @Inject
     Template render;
-
-    @CommandLine.Option(names = {"-f", "--file"},
-            required = false,
-            description = "Optional filename the given note should be added")
-    String fileName;
-
-    @Command(name = "edit",
-            aliases = {"e"},
-            description = "Opens the current log-file for editing")
-    Integer edit() throws InterruptedException, IOException {
-        notes.ensureNotesDirExists();
-        Path noteFile = Optional.ofNullable(fileName)
-                .map(Paths::get)
-                .orElse(notes.ensureNotesFileExists());
-
-        Process process = new ProcessBuilder(config.getEditor(), noteFile.toString()).inheritIO().start();
-        process.waitFor();
-
-        return 0;
-    }
-
-    @Command(name = "view",
-            aliases = {"v"},
-            description = "Views the current log-file (using mdcat)")
-    Integer view() throws InterruptedException, IOException {
-        notes.ensureNotesDirExists();
-        Path noteFile = notes.ensureNotesFileExists();
-
-        Process process = new ProcessBuilder("mdcat", noteFile.toString())
-                .inheritIO()
-                .start();
-        process.waitFor();
-
-        return 0;
-    }
 
     @Command(name = "render",
             aliases = {"r"},

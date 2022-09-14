@@ -36,6 +36,8 @@ public class SearchCmd implements Callable<Integer> {
 
         List<Path> allNotes = Files.list(documentPath)
                 .filter(Files::isRegularFile)
+                .filter(p -> p.toString().endsWith("md"))
+                .sorted()
                 .toList();
         for (Path note : allNotes) {
             List<String> allLines = Files.readAllLines(note);

@@ -35,7 +35,9 @@ public class ListCmd implements Callable<Integer> {
         notes.ensureNotesDirExists();
 
         Stream<Path> fileStream = Files.list(config.getDocumentPath())
-                .filter(p -> p.toString().endsWith("md"));
+                .filter(Files::isRegularFile)
+                .filter(p -> p.toString().endsWith("md"))
+                .sorted();
 
         if (compact) {
             fileStream.map(Path::getFileName).forEach(out::println);
@@ -48,6 +50,7 @@ public class ListCmd implements Callable<Integer> {
 
     private void printTreeView(Path path) {
         out.println(path.getFileName());
+
         try {
             List<String> allHeadlines = Files.readAllLines(path).stream()
                     .filter(l -> l.startsWith("# "))
@@ -56,6 +59,7 @@ public class ListCmd implements Callable<Integer> {
             for (int i = 0; i < allHeadlines.size(); i++) {
                 out.println(((i == allHeadlines.size()-1) ? "   └ " : "   ├ ") + allHeadlines.get(i));
             }
+            out.println();
         } catch (IOException ignored) {
         }
     }
