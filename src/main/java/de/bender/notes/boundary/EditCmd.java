@@ -31,7 +31,7 @@ public class EditCmd implements Callable<Integer> {
         notes.ensureNotesDirExists();
         Path noteFile = Optional.ofNullable(fileName)
                 .map(name -> (fileName.matches(".*(.md|.MD)$")) ? fileName : fileName + ".md")
-                .map(Paths::get)
+                .map(name -> Paths.get(config.getDocumentPath().toString(), name))
                 .orElse(notes.ensureNotesFileExists());
 
         Process process = new ProcessBuilder(config.getEditor(), noteFile.toString()).inheritIO().start();
