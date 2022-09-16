@@ -60,6 +60,9 @@ public class Config {
         var notesDirectory = readConfigValue(CONF_KEY_NOTES_DOC_DIR);
         return Paths.get(notesDirectory, fileName+".md");
     }
+    public Path getTodoFilePath() {
+        return Paths.get(readConfigValue(CONF_KEY_NOTES_DOC_DIR), "todo.md");
+    }
 
     public void reset() throws IOException {
         Files.deleteIfExists(Paths.get(CONFIG_FILE));

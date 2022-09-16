@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Output</title>
+<title>Notes</title>
 <style>
     html \{
       line-height: 1.5;
@@ -11,8 +11,8 @@
     }
     body \{
       margin: 0 auto;
-      max-width: 36em;
-      padding-left: 50px;
+      max-width: 46em;
+      padding-left: 20px;
       padding-right: 50px;
       padding-top: 50px;
       padding-bottom: 50px;

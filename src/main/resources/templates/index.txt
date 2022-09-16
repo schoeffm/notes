@@ -1,0 +1,14 @@
+<html>
+    <head>
+        <title>Output</title>
+        <style>
+        </style>
+    </head>
+    <frameset cols = "13%,87%">
+        <frame name = "toc" src = "toc.html" frameborder="0"/>
+        <frame name = "main" src = "{current}" frameborder="0"/>
+        <noframes>
+            <body>The browser you are working does not support frames.</body>
+        </noframes>
+    </frameset>
+</html>

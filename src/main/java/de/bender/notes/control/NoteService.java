@@ -39,6 +39,14 @@ public class NoteService {
                     asFileAttribute(Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE)));
         }
     }
+
+    public Path ensureTodoFileExists() throws IOException {
+        if (Files.notExists(config.getTodoFilePath())) {
+            Files.createFile(config.getTodoFilePath(), asFileAttribute(Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE)));
+        }
+        return config.getTodoFilePath();
+    }
+
     public void ensureNoteOutputDirExists() throws IOException {
         if (Files.notExists(config.getDocumentOutputPath())) {
             Files.createDirectories(config.getDocumentOutputPath(),
@@ -54,4 +62,5 @@ public class NoteService {
         Files.deleteIfExists(config.getDocumentOutputPath());
         this.ensureNoteOutputDirExists();
     }
+
 }

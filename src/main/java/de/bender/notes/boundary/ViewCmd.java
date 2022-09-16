@@ -1,7 +1,7 @@
 package de.bender.notes.boundary;
 
+import de.bender.notes.control.Config;
 import de.bender.notes.control.NoteService;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -17,6 +17,9 @@ import java.util.concurrent.Callable;
 public class ViewCmd implements Callable<Integer> {
 
     @Inject
+    Config config;
+
+    @Inject
     NoteService notes;
 
     @Option(names = {"-f", "--file"},
@@ -28,7 +31,7 @@ public class ViewCmd implements Callable<Integer> {
         notes.ensureNotesDirExists();
         Path noteFile = Optional.ofNullable(fileName)
                 .map(name -> (fileName.matches(".*(.md|.MD)$")) ? fileName : fileName + ".md")
-                .map(Paths::get)
+                .map(name -> Paths.get(config.getDocumentPath().toString(), name))
                 .orElse(notes.ensureNotesFileExists());
 
         Process process = new ProcessBuilder("mdcat", noteFile.toString())
