@@ -12,8 +12,6 @@ import org.commonmark.ext.heading.anchor.HeadingAnchorExtension;
 import org.commonmark.ext.image.attributes.ImageAttributesExtension;
 import org.commonmark.ext.task.list.items.TaskListItemsExtension;
 import org.commonmark.node.Image;
-import org.commonmark.node.Link;
-import org.commonmark.node.LinkReferenceDefinition;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.NodeRenderer;
@@ -55,7 +53,7 @@ public class RenderCmd implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        notes.ensureNotesDirExists();
+        notes.ensureDocumentsDirExists();
         notes.reinitOutputDir();
 
         renderMarkdownFiles();

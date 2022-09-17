@@ -40,7 +40,6 @@ public class AdditionCmd implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        notes.ensureNotesDirExists();
         Path noteFile = notes.ensureNotesFileExists(fileName);
         var tsFormatter = DateTimeFormatter.ofPattern(TS_PATTERN_FORMAT).withZone(ZoneId.systemDefault());
 

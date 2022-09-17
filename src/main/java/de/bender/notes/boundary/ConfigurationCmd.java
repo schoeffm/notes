@@ -15,10 +15,8 @@ import java.util.concurrent.Callable;
 )
 public class ConfigurationCmd implements Callable<Integer> {
 
-
     @Inject
     Config config;
-
 
     @Command(name = "reset",
             description = "Resets the current config back to the default settings")

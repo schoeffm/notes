@@ -2,7 +2,6 @@ package de.bender.notes.boundary;
 
 import de.bender.notes.control.Config;
 import de.bender.notes.control.NoteService;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -22,17 +21,20 @@ import static java.lang.System.out;
         description = "List the current notes")
 public class ListCmd implements Callable<Integer> {
 
+    public static final String TREE_END_ELEMENT = "   └ ";
+    public static final String TREE_MID_ELEMENT = "   ├ ";
+
     @Inject
     Config config;
     @Inject
     NoteService notes;
 
-    @Option(names = {"--compact", "-c"})
+    @Option(names = {"--compact", "-c"}, description = "Shows the list-view in a compacted format (less information)")
     boolean compact;
 
     @Override
     public Integer call() throws Exception {
-        notes.ensureNotesDirExists();
+        notes.ensureDocumentsDirExists();
 
         Stream<Path> fileStream = Files.list(config.getDocumentPath())
                 .filter(Files::isRegularFile)
@@ -53,11 +55,11 @@ public class ListCmd implements Callable<Integer> {
 
         try {
             List<String> allHeadlines = Files.readAllLines(path).stream()
-                    .filter(l -> l.startsWith("# "))
-                    .map(l -> l.substring(2))
+                    .filter(l -> l.startsWith("# "))        // look for H1 headlines
+                    .map(l -> l.substring(2))     // only use the text (remove the markdown #)
                     .toList();
             for (int i = 0; i < allHeadlines.size(); i++) {
-                out.println(((i == allHeadlines.size()-1) ? "   └ " : "   ├ ") + allHeadlines.get(i));
+                out.println(((i == allHeadlines.size()-1) ? TREE_END_ELEMENT : TREE_MID_ELEMENT) + allHeadlines.get(i));
             }
             out.println();
         } catch (IOException ignored) {

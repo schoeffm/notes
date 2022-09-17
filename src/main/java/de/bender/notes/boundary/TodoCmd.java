@@ -40,7 +40,6 @@ public class TodoCmd implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        notes.ensureNotesDirExists();
         Path noteFile = notes.ensureTodoFileExists();
 
         Map<String, List<String>> prefixedLines = Files.readAllLines(noteFile)

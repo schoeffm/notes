@@ -17,8 +17,12 @@ public class OpenCmd implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        new ProcessBuilder("open", Paths.get(config.getDocumentOutputPath().toString(), "index.html").toString())
-                .start();
+        String filePathAsString = Paths
+                .get(config.getDocumentOutputPath().toString(), Config.OUTPUT_INDEX_FILE_NAME)
+                .toString();
+
+        new ProcessBuilder("open", filePathAsString) .start();
+
         return 0;
     }
 }

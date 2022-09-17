@@ -22,19 +22,26 @@ import static java.nio.file.attribute.PosixFilePermission.*;
 @ApplicationScoped
 public class Config {
 
+    public static final String OUTPUT_INDEX_FILE_NAME = "index.html";
+
+
     private static final String CONF_KEY_EDITOR = "NOTES_EDITOR";
     private static final String CONF_VALUE_EDITOR = "$EDITOR";
     private static final String CONF_KEY_NOTES_DOC_DIR = "NOTES_DOC_DIR";
     private static final String CONF_VALUE_NOTES_DOC_DIR = "Documents/notes";
     private static final String CONF_KEY_NOTES_OUTPUT_DIR = "NOTES_OUTPUT_DIR";
     private static final String CONF_VALUE_NOTES_OUTPUT_DIR = "Documents/notes/output";
+    private static final String CONF_KEY_TODO_FILE_NAME = "TODO_FILE_NAME";
+    private static final String CONF_VALUE_TODO_FILE_NAME = "todo.md";
+
 
     private static final String DATE_PATTERN_FORMAT = "yyyy-MM-dd";
 
     private static final Map<String, String> DEFAULT_CONFIG = Map.of(
             CONF_KEY_NOTES_DOC_DIR, Paths.get(System.getProperty("user.home"), CONF_VALUE_NOTES_DOC_DIR).toString(),
             CONF_KEY_NOTES_OUTPUT_DIR, Paths.get(System.getProperty("user.home"), CONF_VALUE_NOTES_OUTPUT_DIR).toString(),
-            CONF_KEY_EDITOR, CONF_VALUE_EDITOR
+            CONF_KEY_EDITOR, CONF_VALUE_EDITOR,
+            CONF_KEY_TODO_FILE_NAME, CONF_VALUE_TODO_FILE_NAME
     );
 
     private static final String CONFIG_DIR = String.format("%s%s%s", System.getProperty("user.home"), FileSystems.getDefault().getSeparator(), ".config");
@@ -48,20 +55,43 @@ public class Config {
         return Paths.get(readConfigValue(CONF_KEY_NOTES_OUTPUT_DIR));
     }
 
+    /**
+     * @return the default-editor as configured in the system or 'vi' as default
+     */
     public String getEditor() {
         return Optional.ofNullable(System.getenv("EDITOR"))
                 .orElse("vi");
     }
+
+    /**
+     * @return the file-{@link Path} for the default notes
+     */
     public Path getNotesFilePath() {
-        var formatter = DateTimeFormatter.ofPattern(DATE_PATTERN_FORMAT).withZone(ZoneId.systemDefault());
+        var formatter = DateTimeFormatter
+                .ofPattern(DATE_PATTERN_FORMAT)
+                .withZone(ZoneId.systemDefault());
         return getNotesFilePath(formatter.format(Instant.now()));
     }
+
+    /**
+     * Crafts the {@link Path}-representation for the given `notes`-filename
+     * </p>
+     * Notice: The given filename does _not_ contain the file-suffix
+     * </p>
+     * @param fileName of the file whose document-{@link Path} should be created
+     * @return {@link Path} of the notes-file
+     */
     public Path getNotesFilePath(String fileName) {
         var notesDirectory = readConfigValue(CONF_KEY_NOTES_DOC_DIR);
-        return Paths.get(notesDirectory, fileName+".md");
+        return Paths.get(notesDirectory, fileName + ".md");
     }
+
+    /**
+     * Crafts the {@link Path}-representation for the `todo` file (as configured in the configs)
+     * @return {@link Path} of the todo-file
+     */
     public Path getTodoFilePath() {
-        return Paths.get(readConfigValue(CONF_KEY_NOTES_DOC_DIR), "todo.md");
+        return Paths.get(readConfigValue(CONF_KEY_NOTES_DOC_DIR), readConfigValue(CONF_KEY_TODO_FILE_NAME));
     }
 
     public void reset() throws IOException {
