@@ -23,6 +23,7 @@ import java.util.concurrent.Callable;
                 ConfigurationCmd.class,
                 AdditionCmd.class,
                 ListCmd.class,
+                DeleteCmd.class,
                 RenderCmd.class,
                 SearchCmd.class},
         description = "Simple notes-taking app")
