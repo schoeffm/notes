@@ -45,6 +45,11 @@
       <artifactId>quarkus-jsonb</artifactId>
     </dependency>
 
+    <!--
+      A bunch of dependencies for rendering Markdown-to-HTML - the reason why we need such a huge
+      amount of dependencies is that we extend the `core`-functionality with a bunch of extensions
+      to support a richer set of markdown (features like tables, todos, anchor-tags etc.)
+    -->
     <dependency>
       <groupId>org.commonmark</groupId>
       <artifactId>commonmark</artifactId>
@@ -142,6 +147,15 @@
           </execution>
         </executions>
       </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>17</source>
+                <target>17</target>
+                <compilerArgs>--enable-preview</compilerArgs>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
   <profiles>

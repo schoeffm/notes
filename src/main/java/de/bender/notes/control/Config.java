@@ -50,6 +50,9 @@ public class Config {
     public Path getDocumentPath() {
         return Paths.get(readConfigValue(CONF_KEY_NOTES_DOC_DIR));
     }
+    public Path getStaticContentPath() {
+        return Paths.get(readConfigValue(CONF_KEY_NOTES_DOC_DIR), "img");
+    }
 
     public Path getDocumentOutputPath() {
         return Paths.get(readConfigValue(CONF_KEY_NOTES_OUTPUT_DIR));
@@ -83,7 +86,7 @@ public class Config {
      */
     public Path getNotesFilePath(String fileName) {
         var notesDirectory = readConfigValue(CONF_KEY_NOTES_DOC_DIR);
-        return Paths.get(notesDirectory, fileName + ".md");
+        return Paths.get(notesDirectory, (fileName.matches(".*(.md|.MD)$")) ? fileName : fileName + ".md");
     }
 
     /**

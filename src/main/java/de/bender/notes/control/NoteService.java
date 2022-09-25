@@ -6,9 +6,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static java.nio.file.attribute.PosixFilePermission.*;
 import static java.nio.file.attribute.PosixFilePermissions.asFileAttribute;
@@ -74,26 +75,25 @@ public class NoteService {
         }
     }
 
-    /**
-     * As the name suggests it will clear the current render output (if it exists) and re-create it afterwards.
-     *
-     * @throws IOException if the directory cannot be created
-     */
-    public void reinitOutputDir() throws IOException {
-        List<Path> paths = Files.list(config.getDocumentOutputPath()).toList();
-        for (Path file : paths) {
-            Files.deleteIfExists(file);
+    public void reinitOutput(Path toBeInitialized) throws IOException {
+        if (Files.exists(config.getDocumentOutputPath())) {
+            try (Stream<Path> walk = Files.walk(config.getDocumentOutputPath())) {
+                walk.sorted(Comparator.reverseOrder()).forEach(this::delete);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
-        Files.deleteIfExists(config.getDocumentOutputPath());
-        this.ensureNoteOutputDirExists();
+        Files.createDirectories(toBeInitialized, asFileAttribute(Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE)));
     }
 
-    private void ensureNoteOutputDirExists() throws IOException {
-        if (Files.notExists(config.getDocumentOutputPath())) {
-            Files.createDirectories(config.getDocumentOutputPath(),
-                    asFileAttribute(Set.of(OWNER_EXECUTE, OWNER_READ, OWNER_WRITE)));
+    private void delete(Path path) {
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            System.err.printf("Unable to delete this path : %s%n%s", path, e);
         }
     }
+
 
     /**
      * Takes the given filename (with or without suffix) and tries to identify the respective file in the

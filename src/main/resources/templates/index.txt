@@ -4,7 +4,7 @@
         <style>
         </style>
     </head>
-    <frameset cols = "13%,87%">
+    <frameset cols = "220px,100%">
         <frame name = "toc" src = "toc.html" frameborder="0"/>
         <frame name = "main" src = "{current}" frameborder="0"/>
         <noframes>

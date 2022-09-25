@@ -27,21 +27,27 @@ notes add 'I do not think that belongs to my daily log' -f dedicated
 # opens the current notes file in your default editor
 notes edit
 
-# uses grep -i to find all notes that contain the given search-string
+# searches for the given words in your files 
 notes search think that belong
-
-# renders all markdown files to HTML
-notes render
 
 # lists the content of the notes-dir
 notes ls
+
+# renders the current markdown into a DocSet
+notes render
+
+# if you don't have a doc-browser like dash you can just use your `normal` browser 
+# to inspect the rendered HTML output - this command opens your default browser and
+# loads the index.html
+notes open
 ```
 
 ### Dependencies
 The tool integrates with a bunch of other CLI-tools - so it was created in the assumption that you also have
-- `grep`: in order to search through the notes
 - `mdcat`: to render the respective markdown file in our terminal
+- `sqlite3`: when rendering a DocSet we generate a SQLite-DB that contains the searchIndex (for being used in tools like [Dash][dash]). There is a SQLite lib to be used directly in java but unfortunately I wasn't able to make it work together with GraalVM (in order to create a native binary).
 
 
 [noted]:https://github.com/schoeffm/noted
 [note-taking-process]:https://dev.to/scottshipp/my-note-taking-process-49pa
+[dash]:https://kapeli.com/dash

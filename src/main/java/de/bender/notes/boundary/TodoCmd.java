@@ -1,7 +1,6 @@
 package de.bender.notes.boundary;
 
 import de.bender.notes.control.NoteService;
-import io.quarkus.qute.Template;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -10,9 +9,6 @@ import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +37,6 @@ public class TodoCmd implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         Path noteFile = notes.ensureTodoFileExists();
-
         Map<String, List<String>> prefixedLines = Files.readAllLines(noteFile)
                 .stream()
                 .collect(Collectors.groupingBy(s -> s.substring(0, DONE_PREVIX.length())));
@@ -50,23 +45,32 @@ public class TodoCmd implements Callable<Integer> {
         Files.deleteIfExists(noteFile);
         Files.createFile(noteFile);
 
+        StringBuilder content = new StringBuilder();
+
         // first entry is the new todo
-        String newEntry = "- [ ] " + String.join(" ", this.content) + "\n";
+        // String newEntry = "- [ ] " + String.join(" ", this.content) + "\n";
         if (! this.content.isEmpty()) {
-            Files.writeString(noteFile, newEntry, StandardOpenOption.APPEND);
+            content.append("- [ ] ").append(String.join(" ", this.content)).append("\n");
+            // Files.writeString(noteFile, newEntry, StandardOpenOption.APPEND);
         }
 
         // write open tasks first
         if (prefixedLines.containsKey(OPEN_PREVIX)) {
             for (String line : prefixedLines.get(OPEN_PREVIX)) {
-                Files.writeString(noteFile, line + "\n", StandardOpenOption.APPEND);
+                content.append(line).append("\n");
+                // Files.writeString(noteFile, line + "\n", StandardOpenOption.APPEND);
             }
         }
         // then append all closed ones
         if (prefixedLines.containsKey(DONE_PREVIX) && !clear) {
             for (String line : prefixedLines.get(DONE_PREVIX)) {
-                Files.writeString(noteFile, line + "\n", StandardOpenOption.APPEND);
+                content.append(line).append("\n");
+                // Files.writeString(noteFile, line + "\n", StandardOpenOption.APPEND);
             }
+        }
+
+        if (content.length() > 0) {
+            Files.writeString(noteFile, content.toString(), StandardOpenOption.WRITE);
         }
 
         return 0;
