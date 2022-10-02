@@ -11,17 +11,16 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
 
 @Command(name = "todo",
         aliases = {"t"},
         description = "Creates a new todo entry to the current todo-list")
 public class TodoCmd implements Callable<Integer> {
 
-    private static String DONE_PREVIX = "- [X]";
-    private static String OPEN_PREVIX = "- [ ]";
+    private static String DONE_PREFIX = "- [X]";
+    private static String OPEN_PREFIX = "- [ ]";
 
     @Inject
     NoteService notes;
@@ -32,47 +31,43 @@ public class TodoCmd implements Callable<Integer> {
     boolean clear;
 
     @Parameters(description = "Notes content to be added to the notes-log")
-    List<String> content = new ArrayList<>();
+    List<String> newTodoContent = new ArrayList<>();
 
     @Override
     public Integer call() throws Exception {
         Path noteFile = notes.ensureTodoFileExists();
-        Map<String, List<String>> prefixedLines = Files.readAllLines(noteFile)
-                .stream()
-                .collect(Collectors.groupingBy(s -> s.substring(0, DONE_PREVIX.length())));
-
-
+        List<String> currentFileContent = Files.readAllLines(noteFile);
         Files.deleteIfExists(noteFile);
         Files.createFile(noteFile);
 
-        StringBuilder content = new StringBuilder();
+        StringBuilder fileContent = new StringBuilder();
 
         // first entry is the new todo
-        // String newEntry = "- [ ] " + String.join(" ", this.content) + "\n";
-        if (! this.content.isEmpty()) {
-            content.append("- [ ] ").append(String.join(" ", this.content)).append("\n");
-            // Files.writeString(noteFile, newEntry, StandardOpenOption.APPEND);
+        if (! this.newTodoContent.isEmpty()) {
+            fileContent.append(OPEN_PREFIX)
+                    .append(" ")
+                    .append(String.join(" ", this.newTodoContent))
+                    .append("\n");
         }
 
-        // write open tasks first
-        if (prefixedLines.containsKey(OPEN_PREVIX)) {
-            for (String line : prefixedLines.get(OPEN_PREVIX)) {
-                content.append(line).append("\n");
-                // Files.writeString(noteFile, line + "\n", StandardOpenOption.APPEND);
-            }
-        }
-        // then append all closed ones
-        if (prefixedLines.containsKey(DONE_PREVIX) && !clear) {
-            for (String line : prefixedLines.get(DONE_PREVIX)) {
-                content.append(line).append("\n");
-                // Files.writeString(noteFile, line + "\n", StandardOpenOption.APPEND);
+        for (String line : currentFileContent) {
+            if (!todoIsMarkedAsDone(line)) {
+                fileContent
+                        .append(line)
+                        .append("\n");
             }
         }
 
-        if (content.length() > 0) {
-            Files.writeString(noteFile, content.toString(), StandardOpenOption.WRITE);
+        if (fileContent.length() > 0) {
+            Files.writeString(noteFile, fileContent.toString(), StandardOpenOption.WRITE);
         }
 
         return 0;
+    }
+
+    private boolean todoIsMarkedAsDone(String line) {
+        return Objects.nonNull(line)
+                && line.length() >= DONE_PREFIX.length()
+                && (line.startsWith(DONE_PREFIX) || line.startsWith(DONE_PREFIX.toLowerCase()));
     }
 }
